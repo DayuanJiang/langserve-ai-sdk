@@ -1,10 +1,15 @@
 # langserveのために必要なパッケージ
 langserve[all]
-# manimに必要なライブラリ
-numpy
+fastapi
+uvicorn[standard]
+# manimに必要なライブラリ 
+# 
+numpy<2
 matplotlib
 pandas
-manim
+manim<0.19
 wheel
 cmake
 pycairo
+langchain
+langchain_openai

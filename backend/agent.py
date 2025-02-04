@@ -41,3 +41,8 @@ def create_agent():
     agent = create_tool_calling_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
     return agent_executor
+
+
+if __name__ == '__main__':
+    agent = create_agent()
+    agent.invoke({"input":"2*10"})  
