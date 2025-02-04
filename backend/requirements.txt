@@ -1,0 +1,10 @@
+# langserveのために必要なパッケージ
+langserve[all]
+# manimに必要なライブラリ
+numpy
+matplotlib
+pandas
+manim
+wheel
+cmake
+pycairo

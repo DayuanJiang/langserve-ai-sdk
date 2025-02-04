@@ -1,0 +1,91 @@
+{
+    "name": "Physiquest Animation Generator Container",
+    
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": "."
+    },
+    "runArgs": [
+        "--name", "physiquest_Animation_generator"
+    ],
+    "workspaceFolder": "/workspaces/physiquest_animation_generator",
+    "mounts": [
+        "source=${localWorkspaceFolder},target=/workspaces,type=bind"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "James-Yu.latex-workshop",
+                "mhutchie.git-graph",
+                "github.copilot",
+                "github.copilot-chat",
+                "aaron-bond.better-comments",
+                "anysphere.pyright",
+                "bradlc.vscode-tailwindcss",
+                "christian-kohler.path-intellisense",
+                "cloudlatex.cloudlatex",
+                "csstools.postcss",
+                "eamodio.gitlens",
+                "ecmel.vscode-html-css",
+                "esbenp.prettier-vscode",
+                "formulahendry.auto-rename-tag",
+                "formulahendry.code-runner",
+                "george-alisson.html-preview-vscode",
+                "github.github-vscode-theme",
+                "github.remotehub",
+                "github.vscode-pull-request-github",
+                "grapecity.gc-excelviewer",
+                "gruntfuggly.todo-tree",
+                "hediet.vscode-drawio",
+                "ics.japanese-proofreading",
+                "james-yu.latex-workshop",
+                "jasew.anki",
+                "kevinrose.vsc-python-indent",
+                "kirozen.wordcounter",
+                "marp-team.marp-vscode",
+                "mechatroner.rainbow-csv",
+                "ms-azuretools.vscode-docker",
+                "ms-ceintl.vscode-language-pack-ja",
+                "ms-python.debugpy",
+                "ms-python.isort",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-toolsai.jupyter",
+                "ms-toolsai.jupyter-keymap",
+                "ms-toolsai.jupyter-renderers",
+                "ms-toolsai.tensorboard",
+                "ms-toolsai.vscode-jupyter-cell-tags",
+                "ms-vscode.powershell",
+                "ms-vscode.remote-explorer",
+                "ms-vscode.remote-repositories",
+                "ms-vsliveshare.vsliveshare",
+                "natecorkish.html-css-class-completion",
+                "nvarner.typst-lsp",
+                "oderwat.indent-rainbow",
+                "yfzhao.hscopes-booster",
+                "yfzhao.ultra-math-preview",
+                "yoavbls.pretty-ts-errors",
+                "rickaym.manim-sideview"
+            ]
+        }
+    }
+
+
+	
+	
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "uname -a",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}

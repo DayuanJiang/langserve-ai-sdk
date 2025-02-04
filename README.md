@@ -17,9 +17,11 @@ This repository contains a demo application that showcases how to quickly build 
 
 ### Prerequisites
 
-- Node.js (v16 or later)
-- Python (v3.8 or later)
-- [Vercel CLI](https://vercel.com/docs/cli) (optional, for deployment)
+- Node.js v22
+- Python 3.10
+- LaTeX 最新バージョン
+
+
 
 ### Frontend (Next.js)
 
