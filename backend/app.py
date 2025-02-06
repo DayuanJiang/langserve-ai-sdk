@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from langserve import add_routes
 from pydantic import BaseModel
 
-load_dotenv('../.env.local')
+load_dotenv('./.env.local')
 
 
 class Input(BaseModel):
@@ -19,6 +19,7 @@ app = FastAPI(
     title='LangChain Server',
     version='1.0',
 )
+
 agent = create_agent()
 
 add_routes(
