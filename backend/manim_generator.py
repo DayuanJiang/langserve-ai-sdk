@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from langchain.schema.runnable import RunnableSequence
 from langchain.output_parsers import RegexParser
 import re
-from uuid import uuid4
 from langchain_core.output_parsers import StrOutputParser
 import subprocess 
 # 環境変数の読み込み (.env ファイルから OPENAI_API_KEY を取得)
@@ -15,10 +14,7 @@ load_dotenv('./.env.local')
 
 
 
-def create_agent(prompt:str):
-    
-    
-    
+def generate_manim_script(prompt:str):
     llm = ChatOpenAI(model='gpt-4o-mini', temperature=0, api_key=os.getenv('OPENAI_API_KEY'))
     prompt_1 = PromptTemplate(
 		input_variables=["user_prompt"],
@@ -69,18 +65,37 @@ def create_agent(prompt:str):
         last = prompt_2 | llm | parser
     )
     output =chain.invoke({"user_prompt": prompt})
+    # 余分な文字列を削除
+    output = output.replace("```python", "")
+    output = output.replace("```", "")
     return output
 
 
+def script_to_manim_animation(script:str, file_name:str):
+    # tmpディレクトリが存在しない場合
+    if not os.path.exists("tmp"):
+        os.makedirs("tmp")
+    with open(f"tmp/{file_name}.py", "w") as f:
+        f.write(script)
+    # 生成されたManimスクリプトを実行する
+    try:
+        subprocess.run(["manim", "-pql", f"tmp/{file_name}.py", "GeneratedScene"], check=True,shell=True)
+        return "Success"
+    except subprocess.CalledProcessError as e:
+        return e.returncode
+    
+    
+
+def generate_manim_animation(prompt:str, file_name:str):
+    output = generate_manim_script(prompt)
+    err=script_to_manim_animation(output, file_name)
+    return err
+
+
+
 if __name__ == '__main__':
-    output = create_agent("Create a scene with a red circle")
+    output = generate_manim_script("Create a scene with a red circle")
     print("=== FINAL OUTPUT ===")
     print(output)
-    id = uuid4() # どこかで保存する)
-    with open(f"temp/{id}.py", "w") as f:
-        output = output.replace("```python", "")
-        output = output.replace("```", "")
-        f.write(output)
-    
-    subprocess.run(f"manim temp/{id}.py GeneratedScene -pql", shell=True)
+    script_to_manim_animation(script=output, file_name="test_2")
 
