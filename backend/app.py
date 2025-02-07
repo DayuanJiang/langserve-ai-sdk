@@ -37,7 +37,7 @@ add_routes(
 
 @app.get('/api/get_video/{video_id}')
 async def get_video(video_id: str):
-    path = Path(f'./videos/{video_id}/480p15/GeneratedScene.mp4')
+    path = Path(f'./media/videos/{video_id}/480p15/GeneratedScene.mp4')
     if not path.exists():
         return responses.JSONResponse(status_code=404, content={'message': 'Video not found'})
     return responses.FileResponse(path,media_type="video/mp4")
@@ -49,7 +49,7 @@ async def prompt(prompt: Prompt):
     err = generate_manim_animation(prompt,video_id)
     if err != "Success":
         return responses.JSONResponse(status_code=500, content={'message': err})
-    return responses.FileResponse(f'./videos/{video_id}/480p15/GeneratedScene.mp4',media_type="video/mp4")
+    return responses.FileResponse(f'./media/videos/{video_id}/480p15/GeneratedScene.mp4',media_type="video/mp4")
 
 if __name__ == '__main__':
     import uvicorn
