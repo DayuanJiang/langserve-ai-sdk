@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from pathlib import Path
 from manim_generator import generate_manim_animation
 from fastapi.responses import JSONResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv('./.env.local')
 
@@ -30,6 +31,16 @@ class Prompt(BaseModel):
 app = FastAPI(
     title='LangChain Server',
     version='1.0',
+)
+origins=["http://localhost:3000"]
+
+# CORS 設定を追加
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # すべてのオリジンを許可（本番環境では制限すべき）
+    allow_credentials=True,
+    allow_methods=["*"],  # すべてのHTTPメソッドを許可
+    allow_headers=["*"],  # すべてのヘッダーを許可
 )
 
 agent = create_agent()
