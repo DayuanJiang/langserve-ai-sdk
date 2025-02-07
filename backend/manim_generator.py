@@ -79,7 +79,7 @@ def script_to_manim_animation(script:str, file_name:str):
         f.write(script)
     # 生成されたManimスクリプトを実行する
     try:
-        subprocess.run(["manim", "-pql", f"tmp/{file_name}.py", "GeneratedScene"], check=True,shell=True)
+        subprocess.run(["manim", "-pql", f"tmp/{file_name}.py", "GeneratedScene"], check=True)
         return "Success"
     except subprocess.CalledProcessError as e:
         return e.returncode
