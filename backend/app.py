@@ -48,7 +48,7 @@ async def prompt(prompt: Prompt):
     video_id = prompt.video_id
     err = generate_manim_animation(prompt,video_id)
     if err != "Success":
-        return responses.JSONResponse(status_code=500, content={'message': 'Failed to generate video'})
+        return responses.JSONResponse(status_code=500, content={'message': err})
     return responses.FileResponse(f'./videos/{video_id}/480p15/GeneratedScene.mp4',media_type="video/mp4")
 
 if __name__ == '__main__':
