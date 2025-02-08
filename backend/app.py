@@ -4,7 +4,7 @@ from fastapi import FastAPI,responses
 from langserve import add_routes
 from pydantic import BaseModel
 from pathlib import Path
-from manim_generator import generate_manim_animation
+from manim_generator import generate_manim_animation,script_file_to_manim_animation
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -67,9 +67,31 @@ async def prompt(prompt: Prompt):
         return responses.JSONResponse(status_code=500, content={'message': err})
     return responses.FileResponse(path=path,media_type="video/mp4",filename="GeneratedScene.mp4")
 
+@app.get("/api/script_to_animation/{script_file_id}",response_class=FileResponse)
+async def get_script_to_animation(script_file_id: str):
+    path = Path(f"tmp/{script_file_id}.py")
+    if not path.is_file():
+        return responses.JSONResponse(status_code=404, content={'message': 'Script not found'})
+    err = script_file_to_manim_animation(path)
+    animation_path = workspace_path / script_file_id / "480p15" / "GeneratedScene.mp4"
+    if err != "Success":
+        return responses.FileResponse
+    else:
+        return responses.FileResponse(animation_path, media_type="video/mp4", filename="GeneratedScene.mp4")
+
+@app.get("/api/get_script/{script_file_id}")
+async def get_script(script_file_id:str):
+    path = Path(f"tmp/{script_file_id}.py")
+    if not path.is_file():
+        return responses.JSONResponse(status_code=404, content={'message': 'Script not found'})
+    # pythonnにおいてjSONでfileの内容を返す
+    with open(path) as f:
+        content = f.read()
+    return responses.JSONResponse(content=content)
+
 
 
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host='localhost', port=8000)
+    uvicorn.run(app, host='127.0.0.1', port=8000)

@@ -52,7 +52,7 @@ def generate_manim_script(prompt:str):
     - Always use from manim import * and class GeneratedScene(Scene): format
     - Write all scene-related code inside def construct(self):
     - Do not include any text other than the code
-    - You only use the default manim colors
+    - You must not use black color for text or shapes
         """
     )
     # parserを作る
@@ -83,8 +83,15 @@ def script_to_manim_animation(script:str, file_name:str):
         return "Success"
     except subprocess.CalledProcessError as e:
         return e.returncode
-    
-    
+
+def script_file_to_manim_animation(file_path:str):
+    # 生成されたManimスクリプトを実行する
+    try:
+        subprocess.run(["manim", "-pql", f"{file_path}", "GeneratedScene"], check=True)
+        return "Success"
+    except subprocess.CalledProcessError as e:
+        return e.returncode
+
 
 def generate_manim_animation(prompt:str, file_name:str):
     output = generate_manim_script(prompt)
