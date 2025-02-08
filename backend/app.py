@@ -4,9 +4,11 @@ from fastapi import FastAPI,responses
 from langserve import add_routes
 from pydantic import BaseModel
 from pathlib import Path
-from manim_generator import generate_manim_animation,script_file_to_manim_animation
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+
+# 自作モジュール
+from manim_generator import generate_manim_animation,script_file_to_manim_animation,script_to_manim_animation
 
 load_dotenv('./.env.local')
 
@@ -24,6 +26,9 @@ class Output(BaseModel):
 class Prompt(BaseModel):
     user_prompt: str
     video_id: str
+    
+class Script(BaseModel):
+    script: str
     
 
 
@@ -75,7 +80,7 @@ async def get_script_to_animation(script_file_id: str):
     err = script_file_to_manim_animation(path)
     animation_path = workspace_path / script_file_id / "480p15" / "GeneratedScene.mp4"
     if err != "Success":
-        return responses.FileResponse
+        return responses.JSONResponse(status_code=404, content={'message': err})
     else:
         return responses.FileResponse(animation_path, media_type="video/mp4", filename="GeneratedScene.mp4")
 
@@ -91,7 +96,16 @@ async def get_script(script_file_id:str):
 
 
 
+# 明らかにセキュリティリスクがあるので、本番環境では必ず仮想環境を用いること
+@app.post("/api/post_code/{script_file_id}")
+async def post_code(script_file_id:str,code:Script):
+    error=script_to_manim_animation(code.script,script_file_id)
+    if error != "Success":
+        return responses.JSONResponse(status_code=500, content={'message': error})
+    path = workspace_path / script_file_id / "480p15" / "GeneratedScene.mp4"
+    return responses.FileResponse(path, media_type="video/mp4", filename="GeneratedScene.mp4")
+
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host='127.0.0.1', port=8000)
+    uvicorn.run(app, host='localhost', port=8000)
