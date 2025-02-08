@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ChatComponent from "../component/chat"
 
 export default function VideoPlayer() {
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -31,6 +32,7 @@ export default function VideoPlayer() {
                     </video>
                 </div>
             )}
+            <ChatComponent />
         </div>
     );
 }
