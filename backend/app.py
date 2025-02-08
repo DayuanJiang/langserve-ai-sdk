@@ -5,7 +5,7 @@ from langserve import add_routes
 from pydantic import BaseModel
 from pathlib import Path
 from manim_generator import generate_manim_animation,script_file_to_manim_animation
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv('./.env.local')
@@ -37,7 +37,7 @@ origins=["http://localhost:3000"]
 # CORS 設定を追加
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # すべてのオリジンを許可（本番環境では制限すべき）
+    allow_origins=origins,  # すべてのオリジンを許可（必要な制限に応じて変更するべし）
     allow_credentials=True,
     allow_methods=["*"],  # すべてのHTTPメソッドを許可
     allow_headers=["*"],  # すべてのヘッダーを許可
@@ -94,4 +94,4 @@ async def get_script(script_file_id:str):
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host='localhost', port=8000)
+    uvicorn.run(app, host='127.0.0.1', port=8000)
