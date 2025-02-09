@@ -19,7 +19,7 @@ const ClipboardCopy = () => {
 
   return (
     <div className="flex flex-col w-full gap-2">
-      <form className="flex flex-col gap-2 w-[40%] m-10 mt-4 mb-1 relative">
+      <form className="flex flex-col gap-2 w-full m-10 mt-4 mb-1 relative">
         <div
           className="w-full h-40 px-8 py-5 pb-10 bg-white text-slate-700 outline-none resize-none rounded-3xl"
           style={{ whiteSpace: "pre-wrap" }}
