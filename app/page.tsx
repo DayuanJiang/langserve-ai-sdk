@@ -1,12 +1,8 @@
 "use client";
-
 import React, { useState } from "react";
-import { readStreamableValue } from "ai/rsc";
-import { StreamEvent } from "@langchain/core/tracers/log_stream";
 import Tabs from "./components/Tabs";
 import TextInputForm from "./components/TextInputForm";
 import ClipboardCopy from "./components/ClipboardCopy";
-import Forms from "./components/form";
 import VideoComponent from "@/app/components/VIdeo";
 
 
@@ -31,7 +27,6 @@ export default function Page() {
 
         try {
             // 1. プロンプトを送信
-            
             const videoResponse = await fetch(path, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -47,6 +42,7 @@ export default function Page() {
             setVideoUrl(url);
         } catch (err) {
             setError((err as Error).message);
+            console.log(error)
         } finally {
             setLoading(false);
         }
@@ -55,49 +51,22 @@ export default function Page() {
 
 
     return (
-        <div className="flex flex-col w-full gap-2">
-            <TextInputForm/>
-            <Tabs />  
-            <ClipboardCopy/>
-            <ClipboardCopy/>
-            <div className="flex flex-col w-full gap-2">
-                <div
-                    className="flex flex-col gap-2 px-2 h-[650px] overflow-y-auto"
-                >
-                    {
-                        chatResults.map((item: any, i: number) => {
-                            switch (item.type) {
-                                case "tool":
-                                    return (
-                                        <div key={i} className="p-4 bg-slate-100 rounded-lg">
-                                            <strong><code>{item.name}</code> Input</strong>
-                                            <pre className="break-all text-sm">
-                                                {JSON.stringify(item.input, null, 2)}
-                                            </pre>
-                                            {item.output && (
-                                                <>
-                                                    <strong>Tool result</strong>
-                                                    <pre className="break-all text-sm">
-                                                        {JSON.stringify(item.output, null, 2)}
-                                                    </pre>
-                                                </>
-                                            )}
-                                        </div>
-                                    );
-                                case "message":
-                                    if (item.output === "") return null;
-                                    return (
-                                        <div key={i} className="p-4 bg-slate-100 rounded-lg prose">
-                                            {item.output}
-                                        </div>
-                                    );
-                                default:
-                                    return null;
-                            }
-                        })
-                    }
-                </div>
+        <div className="flex w-full gap-2 justify-center">
+
+            <div className="flex flex-col w-[40%] ">
+                <TextInputForm input={userPrompt} handleSubmit={handleSubmit} setInput={setUserPrompt} loading={loading} />
+                <Tabs />  
+                <ClipboardCopy/>
+                <ClipboardCopy/>
+                <ClipboardCopy/>
+                <ClipboardCopy/>
+
             </div>
+            <div className="flex flex-col w-[40%] ">
+                <VideoComponent videoUrl={videoUrl}/>
+            </div>
+            
+            
         </div>
     );
 }
