@@ -15,7 +15,7 @@ load_dotenv('./.env.local')
 
 
 
-def generate_manim_script(prompt:str):
+def general_generate_manim_script(prompt:str):
     llm = ChatOpenAI(model='gpt-4o-mini', temperature=0, api_key=os.getenv('OPENAI_API_KEY'))
     prompt_1 = PromptTemplate(
         input_variables=["user_prompt"],
@@ -174,13 +174,13 @@ def script_file_to_manim_animation(file_path:str):
 
 
 
-def generate_manim_animation(prompt:str, file_name:str):
-    output = generate_manim_script(prompt)
+def generate_manim_animation(prompt:str, file_name:str, instruction_type:int):
+    output = general_generate_manim_script(prompt)
     err=script_to_manim_animation(output, file_name)
     return err
 
 def generate_manim_animation_with_error_handling(prompt:str,file_name:str):
-    output = generate_manim_script(prompt)
+    output = general_generate_manim_script(prompt)
     err = script_to_manim_animation(output, file_name)
     # スクリプトの修正回数
     count = 0 
@@ -196,7 +196,7 @@ def generate_manim_animation_with_error_handling(prompt:str,file_name:str):
 
 
 if __name__ == '__main__':
-    # output = generate_manim_script("Create a scene with a red circle")
+    # output = general_generate_manim_script("Create a scene with a red circle")
     # print("=== FINAL OUTPUT ===")
     # print(output)
     # script_to_manim_animation(script=output, file_name="test_2")

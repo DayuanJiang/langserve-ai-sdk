@@ -12,7 +12,7 @@ export default function Page() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [userPrompt, setUserPrompt] = useState("");
-    
+    const [activeTab, setActiveTab] = useState(0);
 
 
     async function handleSubmit(e: React.FormEvent) {
@@ -48,22 +48,24 @@ export default function Page() {
             setLoading(false);
         }
     }
-
-
-
     return (
         <div className="flex flex-col w-full gap-2">
             <Headers />
-         <div className="flex w-full gap-2 justify-center">
-            
-
+        <div className="flex w-full gap-2 justify-center">
             <div className="flex flex-col w-[40%] ">
-                <TextInputForm input={userPrompt} handleSubmit={handleSubmit} setInput={setUserPrompt} loading={loading} />
-                <Tabs />  
-                <ClipboardCopy/>
-                <ClipboardCopy/>
-                <ClipboardCopy/>
-                <ClipboardCopy/>
+                <div className="ml-10 mt-10">
+                    <TextInputForm input={userPrompt}  handleSubmit={handleSubmit} setInput={setUserPrompt} loading={loading} />
+                </div>
+                
+                <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />  
+
+                <div className="flex flex-col ml-10 mt-4 mb-1 gap-y-4">
+                    <ClipboardCopy/>
+                    <ClipboardCopy/>
+                    <ClipboardCopy/>
+                    <ClipboardCopy/> 
+                </div>
+                
             </div>
             <div className="flex flex-col w-[40%] ">
                 <VideoComponent videoUrl={videoUrl}/>

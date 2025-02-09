@@ -26,6 +26,7 @@ class Output(BaseModel):
 class Prompt(BaseModel):
     user_prompt: str
     video_id: str
+    instruction_type : int
     
 class Script(BaseModel):
     script: str
@@ -66,7 +67,8 @@ async def get_video(video_id: str):
 async def prompt(prompt: Prompt):
     user_prompt = prompt.user_prompt
     video_id = prompt.video_id
-    err = generate_manim_animation(user_prompt,video_id)
+    instruction_type = prompt.instruction_type
+    err = generate_manim_animation(user_prompt,video_id,instruction_type)
     path = workspace_path / video_id / "480p15" / "GeneratedScene.mp4"
     if err != "Success":
         return responses.JSONResponse(status_code=500, content={'message': err})
@@ -84,6 +86,7 @@ async def get_script_to_animation(script_file_id: str):
     else:
         return responses.FileResponse(animation_path, media_type="video/mp4", filename="GeneratedScene.mp4")
 
+# script_idはvido_idと同じものを使うことにする。
 @app.get("/api/get_script/{script_file_id}")
 async def get_script(script_file_id:str):
     path = Path(f"tmp/{script_file_id}.py")
