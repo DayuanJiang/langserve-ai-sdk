@@ -86,6 +86,8 @@ def fix_manim_script_agent(script:str, error:str):
         {script}
         Error message: 
         {error}
+        Notes:
+        - You must use following colors for shapes : BLUE,BLUE_A,BLUE_B,BLUE_C,BLUE_D,BLUE_E,DARKER_GRAY,DARKER_GREY,DARK_BLUE,DARK_BROWN,DARK_GRAY,DARK_GREY,GOLD,GOLD_A,GOLD_B,GOLD_C,GOLD_D,GOLD_E,GRAY,GRAY_A,GRAY_B,GRAY_BROWN,GRAY_C,GRAY_D,GRAY_E,GREEN,GREEN_A,GREEN_B,GREEN_C,GREEN_D,GREEN_E,GREY,GREY_A,GREY_B,GREY_BROWN,GREY_C,GREY_D,GREY_E,LIGHTER_GRAY,LIGHTER_GREY,LIGHT_BROWN,LIGHT_GRAY,LIGHT_GREY,LIGHT_PINK,LOGO_BLACK,LOGO_BLUE,LOGO_GREEN,LOGO_RED,LOGO_WHITE,MAROON,MAROON_A,MAROON_B,MAROON_C,MAROON_D,MAROON_E,ORANGE,PINK,PURE_BLUE,PURE_GREEN,PURE_RED,PURPLE,PURPLE_A,PURPLE_B,PURPLE_C,PURPLE_D,PURPLE_E,RED,RED_A,RED_B,RED_C,RED_D,RED_E,TEAL,TEAL_A,TEAL_B,TEAL_C,TEAL_D,TEAL_E,WHITE,YELLOW,YELLOW_A,YELLOW_B,YELLOW_C,YELLOW_D,YELLOW_E
         """
     )
     # 修正した
@@ -179,6 +181,12 @@ def generate_manim_animation(prompt:str, file_name:str, instruction_type:int):
     err=script_to_manim_animation(output, file_name)
     return err
 
+
+def manim_script_error_handler(script:str, error:str ,file_name:str):
+    output = fix_manim_script_agent(script, error)
+    error = script_to_manim_animation(output, file_name)
+    return error
+
 def generate_manim_animation_with_error_handling(prompt:str,file_name:str):
     output = general_generate_manim_script(prompt)
     err = script_to_manim_animation(output, file_name)
@@ -196,12 +204,18 @@ def generate_manim_animation_with_error_handling(prompt:str,file_name:str):
 
 
 if __name__ == '__main__':
-    # output = general_generate_manim_script("Create a scene with a red circle")
-    # print("=== FINAL OUTPUT ===")
-    # print(output)
-    # script_to_manim_animation(script=output, file_name="test_2")
-    # err = generate_manim_animation_with_error_handling("ジョイサウンドゥール", "test_6")
+    # テストコード テストクリア
+    with open("tmp/test_2.py") as f:
+        content = f.read()
     
-    err = script_file_to_manim_animation("tmp/test_6.py")
-    print(err)
+    error = script_file_to_manim_animation("tmp/test_2.py")
+    fine_id = "test_2"
+    count = 0
+    while error != "Success":
+        error = manim_script_error_handler(content, error, fine_id)
+        print(error)
+        count += 1
+        if count > 5:
+            print("Error: Failed to fix the script")
+            break
 

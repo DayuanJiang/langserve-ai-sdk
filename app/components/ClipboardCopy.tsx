@@ -1,11 +1,11 @@
 import { useState } from "react";
 
-const ClipboardCopy = () => {
+const ClipboardCopy = ({defaultText= "The sun was setting behind the mountains, casting a golden glow over the quiet village. The air was cool and crisp, filled with the scent of pine trees and fresh earth. As the villagers went about their evening routines, there was a sense of peace in the air, as if the world had slowed down for just a moment."} : {defaultText:string}) => {
   const [input, setInput] = useState("");
   const [copied, setCopied] = useState(false); // Copied! の状態
 
-  const defaultText =
-    "The sun was setting behind the mountains, casting a golden glow over the quiet village. The air was cool and crisp, filled with the scent of pine trees and fresh earth. As the villagers went about their evening routines, there was a sense of peace in the air, as if the world had slowed down for just a moment.";
+
+    ;
 
   const handleCopy = () => {
     const textToCopy = input || defaultText;

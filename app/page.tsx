@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Tabs from "./components/Tabs";
 import TextInputForm from "./components/TextInputForm";
 import ClipboardCopy from "./components/ClipboardCopy";
 import VideoComponent from "@/app/components/VIdeo";
 import Headers from "@/app/components/header";
+import { examplePrompt,examplePromptfilter } from "@/app/data/examplePrompt";
 
 
 export default function Page() {
@@ -13,6 +14,14 @@ export default function Page() {
     const [error, setError] = useState<string | null>(null);
     const [userPrompt, setUserPrompt] = useState("");
     const [activeTab, setActiveTab] = useState(0);
+    const [filteredExamplePrompt, setFilteredExamplePrompt] = useState(examplePrompt.generateAnimationPrompt);
+
+
+    useEffect(()=>{
+        setFilteredExamplePrompt(examplePromptfilter(examplePrompt, activeTab))
+    },[activeTab])
+
+
 
 
     async function handleSubmit(e: React.FormEvent) {
@@ -57,13 +66,20 @@ export default function Page() {
                     <TextInputForm input={userPrompt}  handleSubmit={handleSubmit} setInput={setUserPrompt} loading={loading} />
                 </div>
                 
-                <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />  
+                <div className="mb-5">
+                    <Tabs activeTab={activeTab} setActiveTab={setActiveTab} /> 
+                </div>
 
                 <div className="flex flex-col ml-10 mt-4 mb-1 gap-y-4">
-                    <ClipboardCopy/>
-                    <ClipboardCopy/>
-                    <ClipboardCopy/>
-                    <ClipboardCopy/> 
+                    {
+                        filteredExamplePrompt.map((prompt) => {
+                            return (
+                                    <div className="flex flex-col gap-2">
+                                        <ClipboardCopy defaultText={prompt.prompt} />
+                                    </div>
+                            );
+                        })
+                    }
                 </div>
                 
             </div>
