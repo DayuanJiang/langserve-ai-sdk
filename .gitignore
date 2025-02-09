@@ -34,3 +34,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# envファイルを無視
+backend/venv
+
+__pycache__/
+*.pyc
+
+
+# videosフォルダを無視
+backend/media

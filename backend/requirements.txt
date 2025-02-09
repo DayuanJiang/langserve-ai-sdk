@@ -1,0 +1,15 @@
+# langserveのために必要なパッケージ
+langserve[all]
+fastapi
+uvicorn[standard]
+# manimに必要なライブラリ 
+# 
+numpy<2
+matplotlib
+pandas
+manim<0.19
+wheel
+cmake
+pycairo
+langchain
+langchain_openai

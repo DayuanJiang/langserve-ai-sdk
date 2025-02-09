@@ -2,72 +2,37 @@
 
 import React, { useState } from "react";
 import { readStreamableValue } from "ai/rsc";
-import { runAgent } from "./actions";
 import { StreamEvent } from "@langchain/core/tracers/log_stream";
+import Tabs from "./components/Tabs";
+import TextInputForm from "./components/TextInputForm";
+import ClipboardCopy from "./components/ClipboardCopy";
+import Forms from "./components/form";
 
 
 export default function Page() {
     const [input, setInput] = useState("");
-    const [data, setData] = useState<StreamEvent[]>([]);
 
     async function handleSubmit(e: React.FormEvent) {
+        const path = process.env.NEXT_PUBLIC_API_URL + "/api/prompts";
         e.preventDefault();
         if (!input) return;
-        const { streamData } = await runAgent(input);
-        for await (const item of readStreamableValue(streamData)) {
-            setData((prev) => [...prev, item]);
-        }
+        // とりあえず一つで管理する
+        const vido_id = "test";
+        const response = await fetch(path,{
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ user_prompt: input, video_id: vido_id }),
+        });
     }
-    let chatResults: any = [];
-    for (let i = 0; i < data.length; i++) {
-        switch (data[i].event) {
-            case "on_tool_start":
-                chatResults.push({
-                    type: "tool",
-                    runID: data[i].run_id,
-                    input: data[i].data.input,
-                    output: null,
-                    name: data[i].name,
-                });
-                break;
-            case "on_tool_end":
-                const toolIndex = chatResults.findIndex(
-                    (item: any) => item.runID === data[i].run_id
-                );
-                chatResults[toolIndex].output = data[i].data.output;
-                break;
-            case "on_chat_model_start":
-                chatResults.push({
-                    type: "message",
-                    runID: data[i].run_id,
-                    output: "",
-                });
-                break;
-            case "on_chat_model_stream":
-                const messageIndex = chatResults.findIndex(
-                    (item: any) => item.runID === data[i].run_id
-                );
-                chatResults[messageIndex].output = chatResults[messageIndex].output + data[i].data.chunk.kwargs.content;
-                break;
-        }
-    }
+
+
 
     return (
         <div className="flex flex-col w-full gap-2">
-            <form onSubmit={handleSubmit} className="flex flex-col w-full gap-2">
-                <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    className="border border-gray-300 rounded-md p-2 mr-2 w-full"
-                />
-                <button
-                    type="submit"
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md"
-                >
-                    Run
-                </button>
-            </form>
+            <TextInputForm/>
+            <Tabs />  
+            <ClipboardCopy/>
+            <ClipboardCopy/>
             <div className="flex flex-col w-full gap-2">
                 <div
                     className="flex flex-col gap-2 px-2 h-[650px] overflow-y-auto"
@@ -96,16 +61,13 @@ export default function Page() {
                                     if (item.output === "") return null;
                                     return (
                                         <div key={i} className="p-4 bg-slate-100 rounded-lg prose">
-
                                             {item.output}
                                         </div>
                                     );
                                 default:
                                     return null;
                             }
-
                         })
-
                     }
                 </div>
             </div>

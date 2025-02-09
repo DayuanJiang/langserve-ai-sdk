@@ -17,9 +17,22 @@ This repository contains a demo application that showcases how to quickly build 
 
 ### Prerequisites
 
-- Node.js (v16 or later)
-- Python (v3.8 or later)
-- [Vercel CLI](https://vercel.com/docs/cli) (optional, for deployment)
+- Node.js v22
+- Python 3.10
+- LaTeX 最新バージョン
+
+### Dockerコンテナの起動
+
+dockercontainerは、VSCodeによるGUIで簡単に操作可能です。
+
+1. Docker Desktopをインストールします。
+2. VSCodeをインストールします。
+3. VSCodeにdevcontainer拡張機能をインストールします。
+4. VSCodeでこのリポジトリを開きます。
+5. VSCodeの左下の「><」をクリックして、コンテナを起動します。
+6. コンテナで再度開くをクリックします。
+7. コンテナが起動し、仮想環境の中に入ることが出来ます。
+
 
 ### Frontend (Next.js)
 

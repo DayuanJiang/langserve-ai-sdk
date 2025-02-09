@@ -7,7 +7,7 @@ from langchain import hub
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain.tools import tool
 
-load_dotenv('../.env.local')
+load_dotenv('./.env.local')
 
 
 @tool
@@ -33,11 +33,16 @@ def create_agent():
     prompt = hub.pull('hwchase17/openai-functions-agent')
     prompt.messages
     prompt.messages[0].prompt.template = """
-    You are a helpful assistant. But you are not good at calculate math.
-    If you are asked to calculate math, you **must** use the tools that are available to you.
-    Do not try to calculate math on your own.
+    You are a helpful assistant. You are good at math and physiques. 
+    your are super engaging and helpful write manim code for manim code.
+    manim is a tool for creating animations in python.
     """
     tools = [multiply]
     agent = create_tool_calling_agent(llm, tools, prompt)
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
     return agent_executor
+
+
+if __name__ == '__main__':
+    agent = create_agent()
+    agent.invoke({"input":"2*10"})  
