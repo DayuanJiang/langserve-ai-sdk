@@ -18,8 +18,8 @@ const VideoComponent = ({videoUrl}:VideoUrl) => {
         return (
             <div>
                 {/* ここはリスポンス対応する必要ある */}
-                <video controls width="768" className="object-fill my-10 ml-20">
-                    <source src={videoUrl} type="video/mp4" />
+                <video controls width="768" className="object-fill my-10 ml-20" autoPlay muted>
+                    <source src={videoUrl} type="video/mp4"  />
                     お使いのブラウザは video タグをサポートしていません。
                 </video>
             </div>
