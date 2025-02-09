@@ -1,4 +1,4 @@
-import React, { useState } from "react"; 
+import React from "react"; 
 
 
 type VideoUrl = {
@@ -10,7 +10,7 @@ const VideoComponent = ({videoUrl}:VideoUrl) => {
         if (!videoUrl) {
             return (
                 <div className="w-[48rem] h-[27rem] bg-gray-200 shadow-md  my-10 ml-20 rounded-xl">
-                    
+                    {/* なにも表示しないスペース */}
                 </div>
             );
         }
