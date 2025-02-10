@@ -97,11 +97,11 @@ export default function Page() {
 
                 <div className="flex flex-col ml-10 mt-4 mb-1 gap-y-4">
                     {
-                        filteredExamplePrompt.map((prompt) => {
+                        filteredExamplePrompt.map((prompt,index) => {
                             return (
-                                    <div className="flex flex-col gap-2">
-                                        <ClipboardCopy defaultText={prompt.prompt} />
-                                    </div>
+                                <div className="flex flex-col gap-2" key={index}>
+                                    <ClipboardCopy defaultText={prompt.prompt} />
+                                </div>
                             );
                         })
                     }
@@ -112,7 +112,11 @@ export default function Page() {
                 <div className="my-10 ml-20">
                     <VideoComponent videoUrl={videoUrl}/>
                 </div>
-                
+                <div>
+                    {
+                        videoUrl && <DawnloadButton videoUrl={videoUrl} />
+                    }
+                </div>
                 <div className="my-10 ml-20">
                     <Code code={code} />
                 </div>

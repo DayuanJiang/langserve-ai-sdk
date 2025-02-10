@@ -1,4 +1,4 @@
-const fetchVideo = async(videoUrl:string):Promise<Blob| null> => { 
+const fetchVideo = async(videoUrl:string):Promise<string| null> => { 
     try {
         const path = process.env.NEXT_PUBLIC_API_URL + "/api/get_video/" + videoUrl;
         const response = await fetch(
@@ -13,7 +13,8 @@ const fetchVideo = async(videoUrl:string):Promise<Blob| null> => {
             throw new Error("動画の取得に失敗しました");
         };
         const blob = await response.blob();
-        return blob;
+        const url = URL.createObjectURL(blob);
+        return url 
     } catch (err) {
         console.error("Error fetching video:" ,err);
         return null;

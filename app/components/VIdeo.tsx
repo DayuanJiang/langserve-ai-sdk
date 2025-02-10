@@ -1,4 +1,5 @@
 import React from "react"; 
+import DawnloadButton from "@/app/components/DownloadButton";
 
 
 type VideoUrl = {
@@ -16,7 +17,7 @@ const VideoComponent = ({videoUrl}:VideoUrl) => {
         }
         // 動画が設定されている場合
         return (
-            <div>
+            <div >
                 {/* ここはリスポンス対応する必要ある */}
                 <video controls width="768" className="object-fill rounded-xl" autoPlay muted>
                     <source src={videoUrl} type="video/mp4"  />
