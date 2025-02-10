@@ -123,4 +123,6 @@ async def post_code(script_file_id:str,code:Script):
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host='localhost', port=8000)
+    # IPv6なら上のコード IPv4なら下のコード
+    # uvicorn.run(app, host='localhost', port=8000)
+    uvicorn.run(app, host='127.0.0.1',port=8000)
