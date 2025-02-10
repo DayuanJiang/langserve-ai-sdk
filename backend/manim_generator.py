@@ -15,7 +15,7 @@ load_dotenv('./.env.local')
 
 
 
-def generate_manim_script(prompt:str):
+def general_generate_manim_script(prompt:str):
     llm = ChatOpenAI(model='gpt-4o-mini', temperature=0, api_key=os.getenv('OPENAI_API_KEY'))
     prompt_1 = PromptTemplate(
         input_variables=["user_prompt"],
@@ -33,9 +33,12 @@ def generate_manim_script(prompt:str):
     input_variables=["instructions"],
     # 147トークン
     template="""
-    You are an excellent assistant for generating Manim code.
+    You are an excellent expart for generating Manim code.
     Please output executable Python code for Manim based on the following instructions.
     Do not include any unnecessary explanations other than the code.
+    manim version is 0.18.0. our python runtime enviroment is only installed manim and numpy and matplotlib. 
+    You not use any other library.
+    It is dengeous to use numpy and matplotlib defult function variable
     Always use from manim import * and class GeneratedScene(Scene): to create the scene.
     
     Instructions:
@@ -80,12 +83,17 @@ def fix_manim_script_agent(script:str, error:str):
     prompt1 = PromptTemplate(
         input_variables=["script","error"],
         template=""""
-        You are a Manim script fixer. Based on the following error message, please provide a fix for the Manim script.
+        You are a expert Manim script fixer. Based on the following error message, please provide a fix for the Manim script.
         You had to provide how to instruction to fix the script.
+        manim version is 0.18.0. our python runtime enviroment is only installed manim and numpy and matplotlib. 
+        You not use any other library.
+        You shold maintain the same structure of the script and same content
         Script : 
         {script}
         Error message: 
         {error}
+        Notes:
+        - You must use following colors for shapes : BLUE,BLUE_A,BLUE_B,BLUE_C,BLUE_D,BLUE_E,DARKER_GRAY,DARKER_GREY,DARK_BLUE,DARK_BROWN,DARK_GRAY,DARK_GREY,GOLD,GOLD_A,GOLD_B,GOLD_C,GOLD_D,GOLD_E,GRAY,GRAY_A,GRAY_B,GRAY_BROWN,GRAY_C,GRAY_D,GRAY_E,GREEN,GREEN_A,GREEN_B,GREEN_C,GREEN_D,GREEN_E,GREY,GREY_A,GREY_B,GREY_BROWN,GREY_C,GREY_D,GREY_E,LIGHTER_GRAY,LIGHTER_GREY,LIGHT_BROWN,LIGHT_GRAY,LIGHT_GREY,LIGHT_PINK,LOGO_BLACK,LOGO_BLUE,LOGO_GREEN,LOGO_RED,LOGO_WHITE,MAROON,MAROON_A,MAROON_B,MAROON_C,MAROON_D,MAROON_E,ORANGE,PINK,PURE_BLUE,PURE_GREEN,PURE_RED,PURPLE,PURPLE_A,PURPLE_B,PURPLE_C,PURPLE_D,PURPLE_E,RED,RED_A,RED_B,RED_C,RED_D,RED_E,TEAL,TEAL_A,TEAL_B,TEAL_C,TEAL_D,TEAL_E,WHITE,YELLOW,YELLOW_A,YELLOW_B,YELLOW_C,YELLOW_D,YELLOW_E
         """
     )
     # 修正した
@@ -96,6 +104,8 @@ def fix_manim_script_agent(script:str, error:str):
         Please output executable Python code for Manim based on the following instructions and instructions.
         Do not include any unnecessary explanations other than the code because you are manim expert.
         Always use from manim import * and class GeneratedScene(Scene): to create the scene.
+        manim version is 0.18.0. our python runtime enviroment is only installed manim and numpy and matplotlib. 
+        You not use any other library.
         
         Instructions:
         {instructions}
@@ -174,13 +184,19 @@ def script_file_to_manim_animation(file_path:str):
 
 
 
-def generate_manim_animation(prompt:str, file_name:str):
-    output = generate_manim_script(prompt)
+def generate_manim_animation(prompt:str, file_name:str, instruction_type:int):
+    output = general_generate_manim_script(prompt)
     err=script_to_manim_animation(output, file_name)
     return err
 
+
+def manim_script_error_handler(script:str, error:str ,file_name:str):
+    output = fix_manim_script_agent(script, error)
+    error = script_to_manim_animation(output, file_name)
+    return error
+
 def generate_manim_animation_with_error_handling(prompt:str,file_name:str):
-    output = generate_manim_script(prompt)
+    output = general_generate_manim_script(prompt)
     err = script_to_manim_animation(output, file_name)
     # スクリプトの修正回数
     count = 0 
@@ -189,19 +205,25 @@ def generate_manim_animation_with_error_handling(prompt:str,file_name:str):
         err = script_to_manim_animation(output, file_name)
         print(count)
         count += 1
-        if count > 2:
+        if count > 5:
             return "Error: Failed to fix the script"
     return err
 
 
 
 if __name__ == '__main__':
-    # output = generate_manim_script("Create a scene with a red circle")
-    # print("=== FINAL OUTPUT ===")
-    # print(output)
-    # script_to_manim_animation(script=output, file_name="test_2")
-    # err = generate_manim_animation_with_error_handling("ジョイサウンドゥール", "test_6")
+    # テストコード テストクリア
+    with open("tmp/test_2.py") as f:
+        content = f.read()
     
-    err = script_file_to_manim_animation("tmp/test_6.py")
-    print(err)
+    error = script_file_to_manim_animation("tmp/test_2.py")
+    fine_id = "test_2"
+    count = 0
+    while error != "Success":
+        error = manim_script_error_handler(content, error, fine_id)
+        print(error)
+        count += 1
+        if count > 5:
+            print("Error: Failed to fix the script")
+            break
 
