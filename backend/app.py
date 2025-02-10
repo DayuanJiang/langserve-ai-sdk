@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 # 自作モジュール
-from manim_generator import generate_manim_animation,script_file_to_manim_animation,script_to_manim_animation
+from manim_generator import generate_manim_animation,script_file_to_manim_animation,script_to_manim_animation,generate_manim_animation_with_error_handling
 
 load_dotenv('./.env.local')
 
@@ -63,16 +63,21 @@ async def get_video(video_id: str):
         return responses.JSONResponse(status_code=404, content={'message': 'Video not found'})
     return responses.FileResponse(path, media_type="video/mp4", filename="GeneratedScene.mp4")
 
+
+
 @app.post("/api/prompt",response_class=FileResponse)
 async def prompt(prompt: Prompt):
     user_prompt = prompt.user_prompt
     video_id = prompt.video_id
     instruction_type = prompt.instruction_type
-    err = generate_manim_animation(user_prompt,video_id,instruction_type)
+    err = generate_manim_animation_with_error_handling(user_prompt,video_id)
     path = workspace_path / video_id / "480p15" / "GeneratedScene.mp4"
     if err != "Success":
         return responses.JSONResponse(status_code=500, content={'message': err})
     return responses.FileResponse(path=path,media_type="video/mp4",filename="GeneratedScene.mp4")
+
+
+
 
 @app.get("/api/script_to_animation/{script_file_id}",response_class=FileResponse)
 async def get_script_to_animation(script_file_id: str):
@@ -85,6 +90,9 @@ async def get_script_to_animation(script_file_id: str):
         return responses.JSONResponse(status_code=404, content={'message': err})
     else:
         return responses.FileResponse(animation_path, media_type="video/mp4", filename="GeneratedScene.mp4")
+    
+    
+    
 
 # script_idはvido_idと同じものを使うことにする。
 @app.get("/api/get_script/{script_file_id}")
@@ -99,6 +107,8 @@ async def get_script(script_file_id:str):
 
 
 
+
+
 # 明らかにセキュリティリスクがあるので、本番環境では必ず仮想環境を用いること
 @app.post("/api/post_code/{script_file_id}")
 async def post_code(script_file_id:str,code:Script):
@@ -107,6 +117,8 @@ async def post_code(script_file_id:str,code:Script):
         return responses.JSONResponse(status_code=500, content={'message': error})
     path = workspace_path / script_file_id / "480p15" / "GeneratedScene.mp4"
     return responses.FileResponse(path, media_type="video/mp4", filename="GeneratedScene.mp4")
+
+
 
 
 if __name__ == '__main__':

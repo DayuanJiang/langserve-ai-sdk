@@ -6,6 +6,7 @@ import ClipboardCopy from "./components/ClipboardCopy";
 import VideoComponent from "@/app/components/VIdeo";
 import Headers from "@/app/components/header";
 import { examplePrompt,examplePromptfilter } from "@/app/data/examplePrompt";
+import DawnloadButton from "@/app/components/DownloadButton";
 
 
 export default function Page() {
@@ -21,9 +22,6 @@ export default function Page() {
         setFilteredExamplePrompt(examplePromptfilter(examplePrompt, activeTab))
     },[activeTab])
 
-
-
-
     async function handleSubmit(e: React.FormEvent) {
         setLoading(true);
         const defulatpath = process.env.NEXT_PUBLIC_API_URL
@@ -32,15 +30,15 @@ export default function Page() {
         const path =  defulatpath+"/api/prompt";
         e.preventDefault();
         if (!userPrompt) return;
-        // VideoIdsession管理
-        const videoId = "test";
+        // VideoId session管理はちょっと後で考える
+        const videoId = "test_9";
 
         try {
             // 1. プロンプトを送信
             const videoResponse = await fetch(path, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_prompt: userPrompt, video_id: videoId }),
+                body: JSON.stringify({ user_prompt: userPrompt, video_id: videoId ,instruction_type : activeTab}),
             });
 
             if (!videoResponse.ok) {
@@ -85,7 +83,9 @@ export default function Page() {
             </div>
             <div className="flex flex-col w-[40%] ">
                 <VideoComponent videoUrl={videoUrl}/>
+                
             </div>
+
         </div>   
         </div>
         

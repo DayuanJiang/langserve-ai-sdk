@@ -33,9 +33,12 @@ def general_generate_manim_script(prompt:str):
     input_variables=["instructions"],
     # 147トークン
     template="""
-    You are an excellent assistant for generating Manim code.
+    You are an excellent expart for generating Manim code.
     Please output executable Python code for Manim based on the following instructions.
     Do not include any unnecessary explanations other than the code.
+    manim version is 0.18.0. our python runtime enviroment is only installed manim and numpy and matplotlib. 
+    You not use any other library.
+    It is dengeous to use numpy and matplotlib defult function variable
     Always use from manim import * and class GeneratedScene(Scene): to create the scene.
     
     Instructions:
@@ -80,8 +83,11 @@ def fix_manim_script_agent(script:str, error:str):
     prompt1 = PromptTemplate(
         input_variables=["script","error"],
         template=""""
-        You are a Manim script fixer. Based on the following error message, please provide a fix for the Manim script.
+        You are a expert Manim script fixer. Based on the following error message, please provide a fix for the Manim script.
         You had to provide how to instruction to fix the script.
+        manim version is 0.18.0. our python runtime enviroment is only installed manim and numpy and matplotlib. 
+        You not use any other library.
+        You shold maintain the same structure of the script and same content
         Script : 
         {script}
         Error message: 
@@ -98,6 +104,8 @@ def fix_manim_script_agent(script:str, error:str):
         Please output executable Python code for Manim based on the following instructions and instructions.
         Do not include any unnecessary explanations other than the code because you are manim expert.
         Always use from manim import * and class GeneratedScene(Scene): to create the scene.
+        manim version is 0.18.0. our python runtime enviroment is only installed manim and numpy and matplotlib. 
+        You not use any other library.
         
         Instructions:
         {instructions}
@@ -197,7 +205,7 @@ def generate_manim_animation_with_error_handling(prompt:str,file_name:str):
         err = script_to_manim_animation(output, file_name)
         print(count)
         count += 1
-        if count > 2:
+        if count > 5:
             return "Error: Failed to fix the script"
     return err
 
