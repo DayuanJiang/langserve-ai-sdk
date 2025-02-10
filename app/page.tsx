@@ -72,6 +72,7 @@ export default function Page() {
             const blob = await videoResponse.blob();
             const url = URL.createObjectURL(blob);
             setVideoUrl(url);
+            synchronize_video();
         } catch (err) {
             setError((err as Error).message);
             console.log(error)
@@ -114,11 +115,6 @@ export default function Page() {
                 
                 <div className="my-10 ml-20">
                     <Code code={code} />
-                </div>
-                <div className="my-10 ml-20">
-                    <button onClickCapture={synchronize_video}>
-                        ここをクリック
-                    </button>
                 </div>
             </div>
 
