@@ -7,6 +7,8 @@ import VideoComponent from "@/app/components/VIdeo";
 import Headers from "@/app/components/header";
 import { examplePrompt,examplePromptfilter } from "@/app/data/examplePrompt";
 import DawnloadButton from "@/app/components/DownloadButton";
+import Code from "@/app/components/Code";
+import { v4 as uuid } from "uuid";
 
 
 export default function Page() {
@@ -16,23 +18,45 @@ export default function Page() {
     const [userPrompt, setUserPrompt] = useState("");
     const [activeTab, setActiveTab] = useState(0);
     const [filteredExamplePrompt, setFilteredExamplePrompt] = useState(examplePrompt.generateAnimationPrompt);
+    const [code, setCode] = useState<string>("");
+    const [videoId, setVideoId] = useState<string>("test");
 
 
     useEffect(()=>{
         setFilteredExamplePrompt(examplePromptfilter(examplePrompt, activeTab))
     },[activeTab])
 
+    async function synchronize_video(){
+        // このvideoIdはsession情報において少し考える必要がある。
+        setLoading(true);
+        const defulatpath = process.env.NEXT_PUBLIC_API_URL
+        const path =  defulatpath+"/api/get_script/" + videoId;
+        const response = await fetch(path, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+
+        if (!response.ok) {
+            throw new Error("動画の取得に失敗しました");
+        }else{
+            const code = await response.text();
+            const formattedText = code
+                                .replace(/\\n/g, "\n")  // 🔹 \n を改行に変換
+                                .replace(/\\"/g, "\"")  // 🔹 \" を " に戻す
+                                .replace(/^"|"$/g, ""); // 🔹 先頭と末尾の " を削除
+            setCode(formattedText);
+        }
+    }
+
     async function handleSubmit(e: React.FormEvent) {
         setLoading(true);
         const defulatpath = process.env.NEXT_PUBLIC_API_URL
-
+        setVideoId(uuid());
         console.log(defulatpath)
         const path =  defulatpath+"/api/prompt";
         e.preventDefault();
         if (!userPrompt) return;
-        // VideoId session管理はちょっと後で考える
-        const videoId = "test_9";
-
+        
         try {
             // 1. プロンプトを送信
             const videoResponse = await fetch(path, {
@@ -55,6 +79,8 @@ export default function Page() {
             setLoading(false);
         }
     }
+
+
     return (
         <div className="flex flex-col w-full gap-2">
             <Headers />
@@ -82,8 +108,18 @@ export default function Page() {
                 
             </div>
             <div className="flex flex-col w-[40%] ">
-                <VideoComponent videoUrl={videoUrl}/>
+                <div className="my-10 ml-20">
+                    <VideoComponent videoUrl={videoUrl}/>
+                </div>
                 
+                <div className="my-10 ml-20">
+                    <Code code={code} />
+                </div>
+                <div className="my-10 ml-20">
+                    <button onClickCapture={synchronize_video}>
+                        ここをクリック
+                    </button>
+                </div>
             </div>
 
         </div>   

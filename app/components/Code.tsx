@@ -1,13 +1,14 @@
 import { useState } from "react";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
-const Code = () => {
-const [input, setInput] = useState("");
+const Code = ({code}:{code:string}) => {
 const [copied, setCopied] = useState(false); // Copied! の状態
 
 const defaultText ="";
 
 const handleCopy = () => {
-const textToCopy = input || defaultText;
+const textToCopy = code // .replace(/\\n/g, "\n").replace(/^"|"$/g, "")  || defaultText;
 navigator.clipboard.writeText(textToCopy)
     .then(() => {
     setCopied(true);
@@ -18,13 +19,15 @@ navigator.clipboard.writeText(textToCopy)
 
 return (
 <div className="flex flex-col w-full gap-2">
-    <form className="flex flex-col gap-2 w-[40%] m-10 mt-4 mb-1 relative">
-    <div
-        className="w-full h-60 px-8 py-5 pb-10 bg-white text-slate-700 outline-none resize-none rounded-xl"
-        style={{ whiteSpace: "pre-wrap" }}
+    <form className="flex flex-col gap-2 relative">
+    <SyntaxHighlighter language="javascript"      className="w-full h-60 px-8 py-5 pb-10 bg-white text-slate-700 outline-none resize-none rounded-xl"
+        style={ docco }
+        showLineNumbers={true}
+        
     >
-        {input || defaultText}
-    </div>
+        {code ? code.replace(/\\n/g, "\n").replace(/^"|"$/g, "") 
+        : defaultText}
+    </SyntaxHighlighter>
     {/* コピー完了時の吹き出し */}
     {copied && (
         <div className="absolute right-12 bottom-12 bg-black text-white text-sm px-3 py-1 rounded-md">
