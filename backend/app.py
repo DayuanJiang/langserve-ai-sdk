@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from pathlib import Path
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 # 自作モジュール
 from manim_generator import generate_manim_animation,script_file_to_manim_animation,script_to_manim_animation,generate_manim_animation_with_error_handling
@@ -92,9 +93,10 @@ async def get_script(script_file_id:str):
     path = Path(f"tmp/{script_file_id}.py")
     if not path.is_file():
         return responses.JSONResponse(status_code=404, content={'message': 'Script not found'})
-    # pythonnにおいてjSONでfileの内容を返す
+    # pythonにおいてJSONでfileの内容を返す
     with open(path) as f:
         content = f.read()
+    os.remove(path)
     return responses.JSONResponse(content=content)
 
 

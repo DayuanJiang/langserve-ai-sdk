@@ -9,63 +9,35 @@ import re
 from langchain_core.output_parsers import StrOutputParser
 import subprocess 
 from langchain_core.messages import HumanMessage
+import tomllib
 # 環境変数の読み込み (.env ファイルから OPENAI_API_KEY を取得)
 load_dotenv('./.env.local')
+with open("./prompts.toml", 'rb') as f:
+    prompts = tomllib.load(f)
 
-
-def load_llm():
+def load_llm(model_type:str):
+    """
+        model_type: str (Gemini Only)
+    """
     if os.getenv('OPENAI_API_KEY') is not None:
         llm = ChatOpenAI(model='gpt-4o-mini', temperature=0)
     else:
-        llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-thinking-exp-01-21", google_api_key=os.getenv('GEMINI_API_KEY'))
+        llm = ChatGoogleGenerativeAI(model=model_type, google_api_key=os.getenv('GEMINI_API_KEY'))
     return llm
 
 
-
 def general_generate_manim_script(prompt:str):
-    llm = load_llm()
+    think_llm = load_llm("gemini-2.0-flash-thinking-exp")
+    pro_llm = load_llm("gemini-2.0-pro-exp")
     prompt_1 = PromptTemplate(
         input_variables=["user_prompt"],
         # 85トークン
-		template="""
-        You are a production planner for Manim. Based on the following user prompt, please summarize in bullet points what kind of animations and shapes should be created in Manim.
-        User prompt: {user_prompt}
-        Output format:
-        Shapes and text to be drawn in Manim (including specifications such as color and size)
-        Instructions on how the shapes or text should move (animations)
-        The general flow of the scene
-        """
+		template=prompts["chain"]["prompt1"]
     )
     prompt_2 = PromptTemplate(
-    input_variables=["instructions"],
-    # 147トークン
-    template="""
-    You are an excellent expart for generating Manim code.
-    Please output executable Python code for Manim based on the following instructions.
-    Do not include any unnecessary explanations other than the code.
-    manim version is 0.18.0. our python runtime enviroment is only installed manim and numpy and matplotlib. 
-    You not use any other library.
-    It is dengeous to use numpy and matplotlib defult function variable
-    Always use from manim import * and class GeneratedScene(Scene): to create the scene.
-    
-    Instructions:
-    {instructions}
-    Output Format:
-    
-    python```
-    from manim import *
-    class GeneratedScene(Scene):
-        def construct(self):
-            # Required Manim objects and animation calls
-            # ...
-    ```
-    Notes:
-    - Always use from manim import * and class GeneratedScene(Scene): format
-    - Write all scene-related code inside def construct(self):
-    - Do not include any text other than the code
-    - You must not use black color for text or shapes
-    - You must use following colors for shapes : BLUE,BLUE_A,BLUE_B,BLUE_C,BLUE_D,BLUE_E,DARKER_GRAY,DARKER_GREY,DARK_BLUE,DARK_BROWN,DARK_GRAY,DARK_GREY,GOLD,GOLD_A,GOLD_B,GOLD_C,GOLD_D,GOLD_E,GRAY,GRAY_A,GRAY_B,GRAY_BROWN,GRAY_C,GRAY_D,GRAY_E,GREEN,GREEN_A,GREEN_B,GREEN_C,GREEN_D,GREEN_E,GREY,GREY_A,GREY_B,GREY_BROWN,GREY_C,GREY_D,GREY_E,LIGHTER_GRAY,LIGHTER_GREY,LIGHT_BROWN,LIGHT_GRAY,LIGHT_GREY,LIGHT_PINK,LOGO_BLACK,LOGO_BLUE,LOGO_GREEN,LOGO_RED,LOGO_WHITE,MAROON,MAROON_A,MAROON_B,MAROON_C,MAROON_D,MAROON_E,ORANGE,PINK,PURE_BLUE,PURE_GREEN,PURE_RED,PURPLE,PURPLE_A,PURPLE_B,PURPLE_C,PURPLE_D,PURPLE_E,RED,RED_A,RED_B,RED_C,RED_D,RED_E,TEAL,TEAL_A,TEAL_B,TEAL_C,TEAL_D,TEAL_E,WHITE,YELLOW,YELLOW_A,YELLOW_B,YELLOW_C,YELLOW_D,YELLOW_E
-    """
+        input_variables=["instructions"],
+        # 147トークン
+        template=prompts["chain"]["prompt2"]
     )
     # parserを作る
     # 正規表現のパターン（`python` で始まり ``` で終わるコードブロックを抽出）
@@ -73,8 +45,8 @@ def general_generate_manim_script(prompt:str):
     
     parser = StrOutputParser()
     chain = RunnableSequence(
-        first= prompt_1 | llm,
-        last = prompt_2 | llm | parser
+        first= prompt_1 | think_llm,
+        last = prompt_2 | pro_llm | parser
     )
     output =chain.invoke({"user_prompt": prompt})
     # 余分な文字列を削除
@@ -85,47 +57,16 @@ def general_generate_manim_script(prompt:str):
 
 def fix_manim_script_agent(script:str, error:str):
     # エラーメッセージに対して修正を行う。
-    llm = load_llm()
+    llm = load_llm("gemini-2.0-flash-thinking-exp-01-21")
     # いったんllmに修正するためのinstructionを求める
     prompt1 = PromptTemplate(
         input_variables=["script","error"],
-        template=""""
-        You are a expert Manim script fixer. Based on the following error message, please provide a fix for the Manim script.
-        You had to provide how to instruction to fix the script.
-        manim version is 0.18.0. our python runtime enviroment is only installed manim and numpy and matplotlib. 
-        You not use any other library.
-        You shold maintain the same structure of the script and same content
-        Script : 
-        {script}
-        Error message: 
-        {error}
-        Notes:
-        - You must use following colors for shapes : BLUE,BLUE_A,BLUE_B,BLUE_C,BLUE_D,BLUE_E,DARKER_GRAY,DARKER_GREY,DARK_BLUE,DARK_BROWN,DARK_GRAY,DARK_GREY,GOLD,GOLD_A,GOLD_B,GOLD_C,GOLD_D,GOLD_E,GRAY,GRAY_A,GRAY_B,GRAY_BROWN,GRAY_C,GRAY_D,GRAY_E,GREEN,GREEN_A,GREEN_B,GREEN_C,GREEN_D,GREEN_E,GREY,GREY_A,GREY_B,GREY_BROWN,GREY_C,GREY_D,GREY_E,LIGHTER_GRAY,LIGHTER_GREY,LIGHT_BROWN,LIGHT_GRAY,LIGHT_GREY,LIGHT_PINK,LOGO_BLACK,LOGO_BLUE,LOGO_GREEN,LOGO_RED,LOGO_WHITE,MAROON,MAROON_A,MAROON_B,MAROON_C,MAROON_D,MAROON_E,ORANGE,PINK,PURE_BLUE,PURE_GREEN,PURE_RED,PURPLE,PURPLE_A,PURPLE_B,PURPLE_C,PURPLE_D,PURPLE_E,RED,RED_A,RED_B,RED_C,RED_D,RED_E,TEAL,TEAL_A,TEAL_B,TEAL_C,TEAL_D,TEAL_E,WHITE,YELLOW,YELLOW_A,YELLOW_B,YELLOW_C,YELLOW_D,YELLOW_E
-        """
+        template=prompts["error"]["prompt1"]
     )
     # 修正した
     prompt2 = PromptTemplate(
         input_variables=["instructions"],
-        template="""
-        You are an excellent assistant for generating Manim code.
-        Please output executable Python code for Manim based on the following instructions and instructions.
-        Do not include any unnecessary explanations other than the code because you are manim expert.
-        Always use from manim import * and class GeneratedScene(Scene): to create the scene.
-        manim version is 0.18.0. our python runtime enviroment is only installed manim and numpy and matplotlib. 
-        You not use any other library.
-        
-        Instructions:
-        {instructions}
-        
-        Output Format:
-        python```
-        from manim import *
-        class GeneratedScene(Scene):
-            def construct(self):
-                # fixed Manim Script 
-                # ...
-        ```
-        """
+        template=prompts["error"]["prompt2"]
     )
     
     parser = StrOutputParser()
