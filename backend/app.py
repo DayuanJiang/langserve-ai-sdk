@@ -1,4 +1,3 @@
-from agent import create_agent
 from dotenv import load_dotenv
 from fastapi import FastAPI,responses
 from langserve import add_routes
@@ -47,13 +46,6 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],  # すべてのHTTPメソッドを許可
     allow_headers=["*"],  # すべてのヘッダーを許可
-)
-
-agent = create_agent()
-
-add_routes(
-    app,
-    agent.with_types(input_type=Input, output_type=Output),
 )
 
 @app.get('/api/get_video/{video_id}')
