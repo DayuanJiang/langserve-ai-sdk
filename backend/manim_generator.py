@@ -1,5 +1,6 @@
 import os
 from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
 from langchain.schema.runnable import RunnableSequence
@@ -12,11 +13,17 @@ from langchain_core.messages import HumanMessage
 load_dotenv('./.env.local')
 
 
+def load_llm():
+    if os.getenv('OPENAI_API_KEY') is not None:
+        llm = ChatOpenAI(model='gpt-4o-mini', temperature=0)
+    else:
+        llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash-thinking-exp-01-21", google_api_key=os.getenv('GEMINI_API_KEY'))
+    return llm
 
 
 
 def general_generate_manim_script(prompt:str):
-    llm = ChatOpenAI(model='gpt-4o-mini', temperature=0, api_key=os.getenv('OPENAI_API_KEY'))
+    llm = load_llm()
     prompt_1 = PromptTemplate(
         input_variables=["user_prompt"],
         # 85トークン
@@ -78,7 +85,7 @@ def general_generate_manim_script(prompt:str):
 
 def fix_manim_script_agent(script:str, error:str):
     # エラーメッセージに対して修正を行う。
-    llm = ChatOpenAI(model='gpt-4o-mini', temperature=0, api_key=os.getenv('OPENAI_API_KEY'))
+    llm = load_llm()
     # いったんllmに修正するためのinstructionを求める
     prompt1 = PromptTemplate(
         input_variables=["script","error"],

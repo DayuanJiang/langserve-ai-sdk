@@ -1,38 +1,50 @@
 
 from manim import *
-
 class GeneratedScene(Scene):
     def construct(self):
-        # Create axes
-        axes = Axes(x_range=[-4, 4, 1], y_range=[0, 0.5, 0.1], axis_config={"color": DARK_GRAY})
-        self.play(DrawBorderThenFill(axes))
+        # Head
+        head = Circle(radius=1.0, color=LIGHT_BROWN, fill_opacity=1)
+        self.play(DrawBorderThenFill(head))
 
-        # Create normal distribution curve
-        normal_curve = axes.plot(lambda x: np.exp(-x**2 / 2) / np.sqrt(2 * np.pi), color=BLUE_E, stroke_width=2)
-        self.play(Create(normal_curve))
+        # Body
+        body = Ellipse(width=2.0, height=1.5, color=LIGHT_BROWN, fill_opacity=1).shift(DOWN * 1.0)
+        self.play(DrawBorderThenFill(body))
 
-        # Create mean line
-        mean_line = axes.get_vertical_line(axes.c2p(0, 0), color=RED, stroke_width=2)
-        self.play(Create(mean_line))
+        # Ears
+        ear_right = Triangle(color=LIGHT_BROWN, fill_opacity=1).scale(0.3).rotate(PI/3).move_to(head.get_top() + RIGHT * 0.5)
+        ear_left = Triangle(color=LIGHT_BROWN, fill_opacity=1).scale(0.3).rotate(-PI/3).move_to(head.get_top() + LEFT * 0.5)
+        self.play(DrawBorderThenFill(ear_right), DrawBorderThenFill(ear_left))
 
-        # Create standard deviation lines
-        std_dev_left = axes.get_vertical_line(axes.c2p(-1, 0), color=GREEN, stroke_width=2)
-        std_dev_right = axes.get_vertical_line(axes.c2p(1, 0), color=GREEN, stroke_width=2)
+        # Eyes
+        eye_right = Circle(radius=0.1, color=GREEN_B, fill_opacity=1).move_to(head.get_center() + UP * 0.2 + RIGHT * 0.3)
+        eye_left = Circle(radius=0.1, color=GREEN_B, fill_opacity=1).move_to(head.get_center() + UP * 0.2 + LEFT * 0.3)
+        self.play(DrawBorderThenFill(eye_right), DrawBorderThenFill(eye_left))
 
-        # Create dashed lines for standard deviations
-        dashed_std_dev_left = DashedLine(start=std_dev_left.get_start(), end=std_dev_left.get_end(), color=GREEN, stroke_width=2)
-        dashed_std_dev_right = DashedLine(start=std_dev_right.get_start(), end=std_dev_right.get_end(), color=GREEN, stroke_width=2)
+        # Nose
+        nose = Triangle(color=PINK, fill_opacity=1).scale(0.1).rotate(PI).move_to(head.get_center() + DOWN * 0.2)
+        self.play(DrawBorderThenFill(nose))
 
-        self.play(Create(dashed_std_dev_left), Create(dashed_std_dev_right))
+        # Whiskers
+        whiskers_right = VGroup(
+            Line(nose.get_right(), nose.get_right() + RIGHT * 0.5 + UP * 0.2, color=DARK_GREY),
+            Line(nose.get_right(), nose.get_right() + RIGHT * 0.5, color=DARK_GREY),
+            Line(nose.get_right(), nose.get_right() + RIGHT * 0.5 + DOWN * 0.2, color=DARK_GREY)
+        )
+        whiskers_left = VGroup(
+            Line(nose.get_left(), nose.get_left() + LEFT * 0.5 + UP * 0.2, color=DARK_GREY),
+            Line(nose.get_left(), nose.get_left() + LEFT * 0.5, color=DARK_GREY),
+            Line(nose.get_left(), nose.get_left() + LEFT * 0.5 + DOWN * 0.2, color=DARK_GREY)
+        )
+        self.play(Create(whiskers_right), Create(whiskers_left))
 
-        # Create labels
-        normal_dist_label = MathTex("Normal Distribution").scale(0.5).next_to(axes, UP)
-        mean_label = MathTex("Mean (\\\\mu)").scale(0.3).next_to(mean_line, RIGHT)
-        std_dev_label = MathTex("Standard Deviation (\\\\sigma)").scale(0.3).next_to(dashed_std_dev_left, LEFT)
+        # Tail
+        tail_start = body.get_bottom() + DOWN * 0.1 + RIGHT * 0.7
+        tail_end = tail_start + DOWN * 0.7 + RIGHT * 0.5
+        tail = CurvedArrow(tail_start, tail_end, color=LIGHT_BROWN)
+        self.play(Create(tail))
 
-        self.play(FadeIn(normal_dist_label))
-        self.play(FadeIn(mean_label))
-        self.play(FadeIn(std_dev_label))
+        # Text
+        text_cat = Text("猫", color=BLUE).scale(1.0).move_to(body.get_bottom() + DOWN * 1.0)
+        self.play(Write(text_cat))
 
-        # Hold the final scene
-        self.wait(3)
+        self.wait(2)
