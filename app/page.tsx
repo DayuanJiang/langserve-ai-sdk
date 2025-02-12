@@ -57,7 +57,7 @@ export default function Page() {
         const path =  defulatpath+"/api/prompt";
         e.preventDefault();
         if (!userPrompt) return;
-        // 50文字以下の場合は記述量を多くする処理を行う
+        // 50文字未満の場合は記述量を多くする処理を行う
         if(userPrompt.length <50){
             const rewritePrompt = await promptDesoger({user_prompt:userPrompt,instruction_type:activeTab});
             setUserPrompt(rewritePrompt);
