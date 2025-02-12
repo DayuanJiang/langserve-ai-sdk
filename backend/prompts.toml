@@ -14,7 +14,7 @@ Do not include any unnecessary explanations other than the code.
 manim version is 0.18.0. our python runtime enviroment is only installed manim and numpy and matplotlib. 
 You not use any other library.
 It is dengeous to use numpy and matplotlib defult function variable
-If you write latex code, you should use r"" for raw string.
+If you write latex code, you should use r"" for raw string. for example r"\frac{a}{b}"
 Always use from manim import * and class GeneratedScene(Scene): to create the scene.
 
 Instructions:
@@ -26,6 +26,7 @@ from manim import *
 class GeneratedScene(Scene):
     def construct(self):
         # Required Manim objects and animation calls
+        # Text(r"\frac{a}{b}")
         # ...
 """
 
