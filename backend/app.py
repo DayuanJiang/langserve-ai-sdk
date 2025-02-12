@@ -23,6 +23,10 @@ class Prompt(BaseModel):
     video_id: str
     instruction_type: int
 
+class DetailPrompt(BaseModel):
+    user_prompt: str
+    instruction_type: int
+
 class Script(BaseModel):
     script: str
 
@@ -83,6 +87,11 @@ async def post_code(script_file_id: str, code: Script):
     path = workspace_path / script_file_id / "480p15" / "GeneratedScene.mp4"
     return FileResponse(path, media_type="video/mp4", filename="GeneratedScene.mp4")
 
+@app.post("/api/generate_detail_prompt")
+async def generate_detail_prompt(prompt:DetailPrompt):
+    output = animation_service.generate_detail_prompt(prompt.user_prompt, prompt.instruction_type)
+    return responses.JSONResponse(content={'output': output})
+
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run(app, host='127.0.0.1', port=8000)
+    uvicorn.run(app, host='localhost', port=8000)
