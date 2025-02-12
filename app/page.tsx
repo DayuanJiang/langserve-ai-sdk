@@ -9,6 +9,7 @@ import { examplePrompt,examplePromptfilter } from "@/app/data/examplePrompt";
 import DawnloadButton from "@/app/components/DownloadButton";
 import Code from "@/app/components/Code";
 import { v4 as uuid } from "uuid";
+import promptDesoger from "@/app/utils/fetchPromptDesoger";
 
 
 export default function Page() {
@@ -56,34 +57,42 @@ export default function Page() {
         const path =  defulatpath+"/api/prompt";
         e.preventDefault();
         if (!userPrompt) return;
-        
-        try {
-            // 1. プロンプトを送信
-            const videoResponse = await fetch(path, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ user_prompt: userPrompt, video_id: videoId ,instruction_type : activeTab}),
-            });
-
-            if (!videoResponse.ok) {
-                throw new Error("動画生成に失敗しました。");
-            }
-
-            const blob = await videoResponse.blob();
-            const url = URL.createObjectURL(blob);
-            setVideoUrl(url);
-            synchronize_video();
-        } catch (err) {
-            setError((err as Error).message);
-            console.log(error)
-        } finally {
+        // 50文字以下の場合は記述量を多くする処理を行う
+        if(userPrompt.length <50){
+            const rewritePrompt = await promptDesoger({user_prompt:userPrompt,instruction_type:activeTab});
+            setUserPrompt(rewritePrompt);
             setLoading(false);
+        }else{
+            try {
+                // 1. プロンプトを送信
+                const videoResponse = await fetch(path, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_prompt: userPrompt, video_id: videoId ,instruction_type : activeTab}),
+                });
+
+                if (!videoResponse.ok) {
+                    throw new Error("動画生成に失敗しました。");
+                }
+
+                const blob = await videoResponse.blob();
+                const url = URL.createObjectURL(blob);
+                setVideoUrl(url);
+                synchronize_video();
+            } catch (err) {
+                setError((err as Error).message);
+                console.log(error)
+            } finally {
+                setLoading(false);
+            }
         }
+            
+    
     }
 
 
     return (
-        <div className="flex flex-col w-full gap-2">
+    <div className="flex flex-col w-full gap-2">
             <Headers />
         <div className="flex w-full gap-2 justify-center">
             <div className="flex flex-col w-[40%] ">
@@ -123,7 +132,7 @@ export default function Page() {
             </div>
 
         </div>   
-        </div>
+    </div>
         
     );
 }

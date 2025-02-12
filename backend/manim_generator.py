@@ -3,6 +3,7 @@ import subprocess
 from pathlib import Path
 from dotenv import load_dotenv
 import tomllib
+from langdetect import detect
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
@@ -17,6 +18,8 @@ class ManimAnimationService:
             self.prompts = tomllib.load(f)
         self.think_llm = self._load_llm("gemini-2.0-flash-thinking-exp")
         self.pro_llm   = self._load_llm("gemini-2.0-pro-exp")
+        self.flash_llm = self._load_llm("gemini-2.0-flash")
+        self.lite_llm = self._load_llm("gemini-2.0-flash-lite-preview-02-05")
     
     def _load_llm(self, model_type: str):
         if os.getenv('OPENAI_API_KEY'):
@@ -24,6 +27,7 @@ class ManimAnimationService:
         return ChatGoogleGenerativeAI(model=model_type, google_api_key=os.getenv('GEMINI_API_KEY'))
     
     def generate_script(self, user_prompt: str) -> str:
+        lang, user_prompt = self._llm_en_translation(user_prompt)
         prompt1 = PromptTemplate(
             input_variables=["user_prompt"],
             template=self.prompts["chain"]["prompt1"]
@@ -79,7 +83,8 @@ class ManimAnimationService:
         script = self.generate_script(user_prompt)
         err = self.run_script(file_name, script)
         count = 0
-        while err != "Success" and count < 5:
+        limit_count = 1
+        while err != "Success" and count < limit_count:
             script = self.fix_script(script, err, file_name)
             err = self.run_script(file_name, script)
             count += 1
@@ -96,4 +101,110 @@ class ManimAnimationService:
             return "Success"
         except subprocess.CalledProcessError as e:
             return e.stderr
+    
+    def generate_detail_prompt(self,user_prompt:str,instruction_type:int)->str:
+        # 入力された言語を判定する
+        lang,user_prompt = self._llm_en_translation(user_prompt)
+        print(lang,user_prompt)
+        
+        prompt = PromptTemplate(
+            input_variables=["instructions","user_prompt"],
+            template=self.prompts["detailed_prompt"]["detailed_prompt"]
+        )
+        parser = StrOutputParser()
+        chain = RunnableSequence(
+            first= prompt | self.flash_llm,
+            last = parser
+        )
+        instructions = self.instruction_type_to_str(instruction_type)
+        output = chain.invoke({"instructions":instructions,"user_prompt":user_prompt})
+        # もとに翻訳
+        output = self._llm_reverse_translate(lang,output)
+        return output
+    
+    def _en_ja_translate(self,user_prompt:str)->str:
+        # englishから日本語への翻訳
+        prompt = PromptTemplate(
+            input_variables=["user_prompt"],
+            template=self.prompts["translate"]["en_to_ja"]
+        )
+        parser = StrOutputParser()
+        chain = RunnableSequence(
+            first= prompt | self.lite_llm,
+            last = parser
+        )
+        output = chain.invoke({"user_prompt":user_prompt})
+        
+        return output
+    
+    def _ja_en_translate(self,user_prompt:str)->str:
+        # 日本語から英語への翻訳
+        prompt = PromptTemplate(
+            input_variables=["user_prompt"],
+            template=self.prompts["translate"]["ja_to_en"]
+        )
+        parser = StrOutputParser()
+        chain = RunnableSequence(
+            first= prompt | self.lite_llm,
+            last = parser
+        )
+        output = chain.invoke({"user_prompt":user_prompt})
+        
+        return output
+    
+    def _llm_en_translation(self,user_prompt:str)->tuple[str,str]:
+        """
+        input: user_prompt
+            user_prompt : str
+                入力された文章
+        output: lang,user_prompt : tuple[str,str]
+            lang : str
+                入力された言語
+            user_prompt : str
+                翻訳後の文章 日本語なら英語に、英語はそのまま返される
+        """
+        # 翻訳
+        lang = detect(user_prompt)
+        if lang == "ja":
+            return lang,self._ja_en_translate(user_prompt)
+        else:
+            return lang,user_prompt
+    
+    def _llm_reverse_translate(self,original_lang:str,prompt)->str:
+        """
+        input: prompt,lang
+            original_lang : str
+                    もともとのユーザの言語
+            prompt : str
+                入力された文章
+        output: str
+            もともとのユーザーの翻訳後の文章
+        """
+        
+        now_lang = detect(prompt)
+        
+        if now_lang != original_lang:
+            if original_lang == "ja":
+                return self._en_ja_translate(prompt)
+            else:
+                return self._ja_en_translate(prompt)
+        else:
+            return prompt
+    
+    
+    def instruction_type_to_str(self,instruction_type:int)->str:
+        # instruction_typeを日本語に変換
+        if instruction_type==0:
+            return self.prompts["detailed_prompt"]["animation_instructions"]
+        elif instruction_type==1:
+            return self.prompts["detailed_prompt"]["graph_instructions"]
+        elif instruction_type==2:
+            return self.prompts["detailed_prompt"]["formula_transformation_instructions"]
+        elif instruction_type==3:
+            return self.prompts["detailed_prompt"]["shape_instructions"]
+        else:
+            return Exception("instruction_typeが不正です")            
 
+if __name__ == "__main__":
+    describe = ManimAnimationService()
+    print(describe.generate_detail_prompt("半径3の円を書いてください",1))

@@ -63,3 +63,43 @@ class GeneratedScene(Scene):
         # ...
 ```
 """
+
+
+["detailed_prompt"]
+detailed_prompt="""
+You are a prompt designer for Mathmatical and Physical and Infomation Science. Based on the following user prompt and instruction, please write a detailed prompt for the user. You should provide a detailed explanation of the user prompt and instructions in max 100 words.
+Instructions: {instructions}
+User prompt: {user_prompt}
+
+Note You only output the prompt. You should not provide any code or solution and any other response.
+your response will post Gemini or ChatGPT.
+"""
+
+animation_instructions = """
+Given the following user prompt, create a scene in Manim. User wants to create a scene with the following specifications.  you have to create an appropriate prompt for the user.
+"""
+
+graph_instructions = """
+Given the following user prompt, User wants to create a graph in Manim with the following specifications.  you have to create an appropriate prompt for the user.
+"""
+
+formula_transformation_instructions= """
+Given the following user prompt, User wants to create a formula transformation in Manim with the following specifications.  you have to create an appropriate prompt for the user.
+show your work in the formula transformation.
+"""
+
+transition_diagram="""
+Given the following user prompt, User wants to create a transition diagram in Manim with the following specifications.  you have to create an appropriate prompt for the user.
+"""
+
+
+
+["translate"]
+en_to_ja = """
+translate the following text from English to Japanese. You only need to provide the translation of the text.
+text: {user_prompt}
+"""
+ja_to_en = """
+translate the following text from Japanese to English. You only need to provide the translation of the text.
+text: {user_prompt}
+"""
