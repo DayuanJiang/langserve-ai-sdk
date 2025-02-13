@@ -9,6 +9,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.prompts import PromptTemplate
 from langchain.schema.runnable import RunnableSequence
 from langchain_core.output_parsers import StrOutputParser
+import deepl
 
 load_dotenv('./.env.local')
 
@@ -20,6 +21,7 @@ class ManimAnimationService:
         self.pro_llm   = self._load_llm("gemini-2.0-pro-exp")
         self.flash_llm = self._load_llm("gemini-2.0-flash")
         self.lite_llm = self._load_llm("gemini-2.0-flash-lite-preview-02-05")
+        self.translator = deepl.Translator(os.getenv('DEEPL_API_KEY'))
     
     def _load_llm(self, model_type: str):
         if os.getenv('OPENAI_API_KEY'):
@@ -137,6 +139,18 @@ class ManimAnimationService:
         
         return output
     
+    def _en_ja_translate_deepl(self,user_prompt:str)->str:
+        lang_en = 'EN'
+        lang_ja = 'JA'
+        results = self.translator.translate_text(user_prompt, source_lang=lang_en, target_lang=lang_ja)
+        return results 
+
+    def _ja_en_translate_deepl(self,user_prompt:str)->str:
+        lang_en = 'EN'
+        lang_ja = 'JA'
+        results = self.translator.translate_text(user_prompt, source_lang=lang_ja, target_lang=lang_en)
+        return results
+
     def _ja_en_translate(self,user_prompt:str)->str:
         # 日本語から英語への翻訳
         prompt = PromptTemplate(
@@ -166,7 +180,7 @@ class ManimAnimationService:
         # 翻訳
         lang = detect(user_prompt)
         if lang == "ja":
-            return lang,self._ja_en_translate(user_prompt)
+            return lang,self._ja_en_translate_deepl(user_prompt)
         else:
             return lang,user_prompt
     
@@ -185,9 +199,9 @@ class ManimAnimationService:
         
         if now_lang != original_lang:
             if original_lang == "ja":
-                return self._en_ja_translate(prompt)
+                return self._en_ja_translate_deepl(prompt)
             else:
-                return self._ja_en_translate(prompt)
+                return self._ja_en_translate_deepl(prompt)
         else:
             return prompt
     
@@ -208,3 +222,4 @@ class ManimAnimationService:
 if __name__ == "__main__":
     describe = ManimAnimationService()
     print(describe.generate_detail_prompt("半径3の円を書いてください",1))
+    
