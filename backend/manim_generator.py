@@ -138,7 +138,7 @@ class ManimAnimationService:
         output = chain.invoke({"user_prompt":user_prompt})
         
         return output
-    
+
     def _en_ja_translate_deepl(self,user_prompt:str)->str:
         lang_en = 'EN'
         lang_ja = 'JA'
