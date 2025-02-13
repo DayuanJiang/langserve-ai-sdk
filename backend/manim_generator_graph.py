@@ -7,7 +7,7 @@ from pathlib import Path
 def run_script_file( file_path: Path) -> str:
         try:
             return "Success"
-        except subprocess.CalledProcessError as e:
+        except Exception as e:
             arr =f"{e.__class__.__name__}: {e}" # ZeroDivisionError: division by zero
             return arr
         

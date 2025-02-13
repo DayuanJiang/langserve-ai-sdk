@@ -30,7 +30,7 @@ class GeneratedScene(Scene):
         self.play(Create(axes), Write(x_label), Write(y_label))
         self.play(Create(graph))
         self.wait(1)
-        self.badrequest()
+        
 
         # Fade in title and parameters
         self.play(FadeIn(title), run_time=1)
