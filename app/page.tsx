@@ -122,7 +122,7 @@ export default function Page() {
                 <div className="my-10 ml-20">
                     <VideoComponent videoUrl={videoUrl}/>
                 </div>
-                <div>
+                <div className="ml-20">
                     {
                         videoUrl && <DawnloadButton videoUrl={videoUrl} />
                     }

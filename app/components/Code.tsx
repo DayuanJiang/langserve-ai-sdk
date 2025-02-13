@@ -1,11 +1,21 @@
 import { useState } from "react";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import {rainbow} from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 const Code = ({code}:{code:string}) => {
 const [copied, setCopied] = useState(false); // Copied! の状態
 
 const defaultText ="";
+
+
+const isDarkMode = () => {
+    if (typeof window !== "undefined") {
+        return document.documentElement.classList.contains("dark");
+    }
+    return false;
+};
+
 
 const handleCopy = () => {
 const textToCopy = code // .replace(/\\n/g, "\n").replace(/^"|"$/g, "")  || defaultText;
@@ -20,8 +30,8 @@ navigator.clipboard.writeText(textToCopy)
 return (
 <div className="flex flex-col w-full gap-2">
     <form className="flex flex-col gap-2 relative">
-    <SyntaxHighlighter language="javascript"      className="w-full h-60 px-8 py-5 pb-10 !bg-white outline-none resize-none rounded-xl dark:!bg-slate-700"
-        style={ docco }
+    <SyntaxHighlighter language="python"  className="w-full h-60 px-8 py-5 pb-10 !bg-white outline-none resize-none rounded-xl dark:!bg-slate-700 "
+        style={ isDarkMode() ?  rainbow :  docco }
         showLineNumbers={true}
         
     >
