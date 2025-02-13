@@ -27,7 +27,7 @@ class ManimAnimationService:
         if os.getenv('OPENAI_API_KEY'):
             return ChatOpenAI(model='gpt-4o-mini', temperature=0)
         return ChatGoogleGenerativeAI(model=model_type, google_api_key=os.getenv('GEMINI_API_KEY'))
-    
+
     def generate_script(self, user_prompt: str) -> str:
         lang, user_prompt = self._llm_en_translation(user_prompt)
         prompt1 = PromptTemplate(
@@ -92,7 +92,9 @@ class ManimAnimationService:
             count += 1
         return err
 
-    def run_script_file(self, file_path: Path, file_name: str) -> str:
+    
+
+    def run_script_file(self, file_path: Path) -> str:
         try:
             subprocess.run(
                 ["manim", "-pql", str(file_path), "GeneratedScene"],
