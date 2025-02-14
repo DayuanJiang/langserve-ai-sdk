@@ -45,7 +45,7 @@ const Tabs = () => {
   return (
     <div className="w-full mx-auto">
       {/* タブボタン */}
-      <div className="flex justify-center space-x-4 mt-5">
+      <div className="flex justify-center space-x-4 mt-5 max">
         {tabData.map((tab, index) => (
           <button
             key={index}

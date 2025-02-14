@@ -95,21 +95,21 @@ export default function Page() {
     return (
     <div className="flex flex-col w-full gap-2 bg-gray-200 dark:bg-slate-600">
             <Headers />
-        <div className="flex w-full gap-2 justify-center">
-            <div className="flex flex-col w-[40%] ">
-        <div className="mb-5">
+        <div className="md:flex w-full gap-2 justify-center">
+            <div className="flex flex-col w-[40%] max-md:w-full">
+        <div className="mb-5 max-md:mb-0">
                     <Tabs activeTab={activeTab} setActiveTab={setActiveTab} /> 
                 </div>
 
-                <div className="mx-2">
+                <div className="mx-2 max-md:mx-10">
                     <TextInputForm input={userPrompt}  handleSubmit={handleSubmit} setInput={setUserPrompt} loading={loading} />
                 </div>
                 
-                <div className="flex flex-col mt-10 mb-1 gap-y-4">
+                <div className="flex flex-col mt-10 mb-1 gap-y-4 md:mx-0 max-md:ml-10 mr-10">
                     {
                     
                         
-                        <div className="flex flex-col gap-2" >
+                        <div className="flex flex-col gap-2 " >
                                     <Select_Tabs />
                         </div>
                         
@@ -117,8 +117,8 @@ export default function Page() {
                 </div>
                 
             </div>
-            <div className="flex flex-col w-[50%] ">
-                <div className="my-10 ml-20">
+            <div className="md:flex flex-col w-[50%] max-md:w-full">
+                <div className="my-10 ml-20 max-md:mx-5">
                     <VideoComponent videoUrl={videoUrl}/>
                 </div>
                 <div>
@@ -126,7 +126,7 @@ export default function Page() {
                         videoUrl && <DawnloadButton videoUrl={videoUrl} />
                     }
                 </div>
-                <div className="my-10 ml-20">
+                <div className="my-10 ml-20 max-md:mx-5">
                     <Code code={code} />
                 </div>
             </div>

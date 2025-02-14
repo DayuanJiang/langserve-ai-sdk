@@ -20,7 +20,7 @@ const ClipboardCopy = ({ defaultText = "The sun was setting behind the mountains
   };
 
   return (
-    <div className="flex flex-col w-full gap-2">
+    <div className="md:flex flex-col w-full gap-2 max-md:w-full">
       <form className="flex flex-col gap-2 w-full relative">
         <div className="w-full h-40 px-8 py-5 pb-10 bg-white text-slate-700 outline-none resize-none rounded-3xl dark:bg-slate-700 dark:text-white">
           {input || defaultText}
