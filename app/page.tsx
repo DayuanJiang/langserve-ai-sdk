@@ -1,76 +1,138 @@
 "use client";
-
-import React, { useState } from "react";
-import { readStreamableValue } from "ai/rsc";
-import { StreamEvent } from "@langchain/core/tracers/log_stream";
+import React, { useState, useEffect } from "react";
 import Tabs from "./components/Tabs";
 import TextInputForm from "./components/TextInputForm";
 import ClipboardCopy from "./components/ClipboardCopy";
-import Forms from "./components/form";
+import VideoComponent from "@/app/components/VIdeo";
+import Headers from "@/app/components/header";
+import { examplePrompt,examplePromptfilter } from "@/app/data/examplePrompt";
+import DawnloadButton from "@/app/components/DownloadButton";
+import Code from "@/app/components/Code";
+import { v4 as uuid } from "uuid";
+import promptDesoger from "@/app/utils/fetchPromptDesoger";
+import Select_Tabs from "./components/select_Tabs";
 
 
 export default function Page() {
-    const [input, setInput] = useState("");
+    const [videoUrl, setVideoUrl] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [userPrompt, setUserPrompt] = useState("");
+    const [activeTab, setActiveTab] = useState(0);
+    const [filteredExamplePrompt, setFilteredExamplePrompt] = useState(examplePrompt.generateAnimationPrompt);
+    const [code, setCode] = useState<string>("");
+    const [videoId, setVideoId] = useState<string>("test");
+
+
+    useEffect(()=>{
+        setFilteredExamplePrompt(examplePromptfilter(examplePrompt, activeTab))
+    },[activeTab])
+
+    async function synchronize_video(){
+        // このvideoIdはsession情報において少し考える必要がある。
+        setLoading(true);
+        const defulatpath = process.env.NEXT_PUBLIC_API_URL
+        const path =  defulatpath+"/api/get_script/" + videoId;
+        const response = await fetch(path, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+
+        if (!response.ok) {
+            throw new Error("動画の取得に失敗しました");
+        }else{
+            const code = await response.text();
+            const formattedText = code
+                                .replace(/\\n/g, "\n")  // 🔹 \n を改行に変換
+                                .replace(/\\"/g, "\"")  // 🔹 \" を " に戻す
+                                .replace(/^"|"$/g, ""); // 🔹 先頭と末尾の " を削除
+            setCode(formattedText);
+        }
+    }
 
     async function handleSubmit(e: React.FormEvent) {
-        const path = process.env.NEXT_PUBLIC_API_URL + "/api/prompts";
+        setLoading(true);
+        const defulatpath = process.env.NEXT_PUBLIC_API_URL
+        setVideoId(uuid());
+        console.log(defulatpath)
+        const path =  defulatpath+"/api/prompt";
         e.preventDefault();
-        if (!input) return;
-        // とりあえず一つで管理する
-        const vido_id = "test";
-        const response = await fetch(path,{
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ user_prompt: input, video_id: vido_id }),
-        });
+        if (!userPrompt) return;
+        // 50文字未満の場合は記述量を多くする処理を行う
+        if(userPrompt.length <50){
+            const rewritePrompt = await promptDesoger({user_prompt:userPrompt,instruction_type:activeTab});
+            setUserPrompt(rewritePrompt);
+            setLoading(false);
+        }else{
+            try {
+                // 1. プロンプトを送信
+                const videoResponse = await fetch(path, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ user_prompt: userPrompt, video_id: videoId ,instruction_type : activeTab}),
+                });
+
+                if (!videoResponse.ok) {
+                    throw new Error("動画生成に失敗しました。");
+                }
+
+                const blob = await videoResponse.blob();
+                const url = URL.createObjectURL(blob);
+                setVideoUrl(url);
+                synchronize_video();
+            } catch (err) {
+                setError((err as Error).message);
+                console.log(error)
+            } finally {
+                setLoading(false);
+            }
+        }
+            
+    
     }
 
 
-
     return (
-        <div className="flex flex-col w-full gap-2">
-            <TextInputForm/>
-            <Tabs />  
-            <ClipboardCopy/>
-            <ClipboardCopy/>
-            <div className="flex flex-col w-full gap-2">
-                <div
-                    className="flex flex-col gap-2 px-2 h-[650px] overflow-y-auto"
-                >
+    <div className="flex flex-col w-full gap-2 bg-gray-200 dark:bg-slate-600">
+            <Headers />
+        <div className="md:flex w-full gap-2 justify-center">
+            <div className="flex flex-col w-[40%] max-md:w-full">
+        <div className="mb-5 max-md:mb-0">
+                    <Tabs activeTab={activeTab} setActiveTab={setActiveTab} /> 
+                </div>
+
+                <div className="mx-2 max-md:mx-10">
+                    <TextInputForm input={userPrompt}  handleSubmit={handleSubmit} setInput={setUserPrompt} loading={loading} />
+                </div>
+                
+                <div className="flex flex-col mt-10 mb-1 gap-y-4 md:mx-0 max-md:ml-10 mr-10">
                     {
-                        chatResults.map((item: any, i: number) => {
-                            switch (item.type) {
-                                case "tool":
-                                    return (
-                                        <div key={i} className="p-4 bg-slate-100 rounded-lg">
-                                            <strong><code>{item.name}</code> Input</strong>
-                                            <pre className="break-all text-sm">
-                                                {JSON.stringify(item.input, null, 2)}
-                                            </pre>
-                                            {item.output && (
-                                                <>
-                                                    <strong>Tool result</strong>
-                                                    <pre className="break-all text-sm">
-                                                        {JSON.stringify(item.output, null, 2)}
-                                                    </pre>
-                                                </>
-                                            )}
-                                        </div>
-                                    );
-                                case "message":
-                                    if (item.output === "") return null;
-                                    return (
-                                        <div key={i} className="p-4 bg-slate-100 rounded-lg prose">
-                                            {item.output}
-                                        </div>
-                                    );
-                                default:
-                                    return null;
-                            }
-                        })
+                    
+                        
+                        <div className="flex flex-col gap-2 " >
+                                    <Select_Tabs />
+                        </div>
+                        
                     }
                 </div>
+                
             </div>
-        </div>
+            <div className="md:flex flex-col w-[50%] max-md:w-full">
+                <div className="my-10 ml-20 max-md:mx-5">
+                    <VideoComponent videoUrl={videoUrl}/>
+                </div>
+                <div>
+                    {
+                        videoUrl && <DawnloadButton videoUrl={videoUrl} />
+                    }
+                </div>
+                <div className="my-10 ml-20 max-md:mx-5">
+                    <Code code={code} />
+                </div>
+            </div>
+
+        </div>   
+    </div>
+        
     );
 }
